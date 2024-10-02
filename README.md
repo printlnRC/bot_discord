@@ -4,3 +4,4 @@ Here is my discord bot project in Java Script, it doesn't do anything impressive
 
 actual Version V1.0
 -print a message for new user of discord server
+-new commande /salut print "bonjour a toi + member name"
