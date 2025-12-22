@@ -12,7 +12,10 @@ const bot = new Client({
 
 console.log("Connexion au bot...");
 
-bot.login("TON_TOKEN") // Remplace par ton token sécurisé
+require("dotenv").config();
+
+
+bot.login(process.env.TOKEN) // Remplace par ton token sécurisé
     .then(() => console.log("Connecté au bot !"))
     .catch((error) => console.log("Impossible de se connecter au bot - " + error));
 
