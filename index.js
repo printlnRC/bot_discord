@@ -1,5 +1,6 @@
 
 const { Client, GatewayIntentBits } = require("discord.js");
+const fs = require('node:fs');
 
 const bot = new Client({
     intents: [
@@ -76,6 +77,10 @@ bot.on("messageCreate", async (message) => {
   for (const mot of motsCles) {
     if (contenu.includes(mot)) {
       await message.channel.send(`⚠️ ${message.author.username} surveille ton l'angage : **${mot}**`);
+      const contentLog = `Date: ${new Date().toISOString()}, Utilisateur: ${message.author.username}, Mot détecté: ${mot}, Message: ${message.content}\n`;
+      fs.writeFile('log/logs.txt', contentLog, err => {
+        if (err) console.error('Erreur lors de l\'écriture dans le fichier de log:', err);
+      });
       break;
     }
   }
