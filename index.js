@@ -53,7 +53,31 @@ bot.on("interactionCreate", (interaction) => {
         interaction.reply("Pong!");
     }
 
+
     if (interaction.commandName === "salut") {
         interaction.reply(`Bonjour à toi, ${interaction.user.username}!`);
     }
 });
+
+
+// Reconnait les gros mots
+bot.on("messageCreate", async (message) => {
+  // Ignorer les bots
+  if (message.author.bot) return;
+
+  // ID du salon à surveiller
+  const CHANNEL_ID = process.env.CHANNEL_ID; // Remplace par l'ID de ton salon
+
+  if (message.channel.id !== CHANNEL_ID) return;
+
+  const motsCles = ["test", "secret", "alerte"];
+  const contenu = message.content.toLowerCase();
+
+  for (const mot of motsCles) {
+    if (contenu.includes(mot)) {
+      await message.channel.send(`⚠️ ${message.author.username} surveille ton l'angage : **${mot}**`);
+      break;
+    }
+  }
+});
+
