@@ -61,28 +61,54 @@ bot.on("interactionCreate", (interaction) => {
 });
 
 
-// Reconnait les gros mots
+
 bot.on("messageCreate", async (message) => {
-  // Ignorer les bots
   if (message.author.bot) return;
 
-  // ID du salon à surveiller
-  const CHANNEL_ID = process.env.CHANNEL_ID; // Remplace par l'ID de ton salon
-
+  const CHANNEL_ID = process.env.CHANNEL_ID;
   if (message.channel.id !== CHANNEL_ID) return;
 
   const motsCles = ["test", "secret", "alerte"];
   const contenu = message.content.toLowerCase();
 
-  for (const mot of motsCles) {
-    if (contenu.includes(mot)) {
-      await message.channel.send(`⚠️ ${message.author.username} surveille ton l'angage : **${mot}**`);
-      const contentLog = `Date: ${new Date().toISOString()}, Utilisateur: ${message.author.username}, Mot détecté: ${mot}, Message: ${message.content}\n`;
-      fs.writeFile('log/logs.txt', contentLog, err => {
-        if (err) console.error('Erreur lors de l\'écriture dans le fichier de log:', err);
-      });
-      break;
+  const motDetecte = motsCles.find(mot => contenu.includes(mot));
+  if (!motDetecte) return;
+
+  await message.channel.send(
+    `⚠️ ${message.author.username}, surveille ton langage : **${motDetecte}**`
+  );
+
+  // Log général
+  fs.appendFileSync(
+    'log/logs.txt',
+    `Date: ${new Date().toISOString()}, User: ${message.author.username}, Mot: ${motDetecte}, Message: ${message.content}\n`
+  );
+
+  incrementUser(message.author.id);
+});
+
+function incrementUser(userId) {
+  let users = {};
+
+  if (fs.existsSync('log/user.json')) {
+    users = JSON.parse(fs.readFileSync('log/user.json', 'utf8'));
+  }
+
+  users[userId] = (users[userId] || 0) + 1;
+
+  fs.writeFileSync('log/user.json', JSON.stringify(users, null, 2));
+
+  checkUser(userId, users[userId]);
+}
+
+function checkUser(userId, count) {
+  const CHANNEL_ID = process.env.CHANNEL_ID;
+  if (count >= 3) {
+    const channel = bot.channels.cache.get(CHANNEL_ID);
+    if (channel) {
+      channel.send(`🚨 <@${userId}> a utilisé des mots interdits **${count} fois** !`);
     }
   }
-});
+}
+
 
