@@ -36,6 +36,9 @@ bot.on("ready", async () => {
         }
     ]);
     console.log("Le bot est prêt !");
+    
+    // Vérification et programmation du message de Nouvel An automatique
+    checkAndScheduleNewYearMessage();
 });
 
 // Message de bienvenue pour les nouveaux membres
@@ -111,4 +114,49 @@ function checkUser(userId, count) {
   }
 }
 
+function checkAndScheduleNewYearMessage() {
+  const now = new Date();
+  const currentYear = now.getFullYear();
+  
+  // Créer la date du 1er janvier de l'année suivante
+  const nextNewYear = new Date(currentYear + 1, 0, 1, 0, 0, 0, 0);
+  
+  // Calculer le temps en millisecondes jusqu'au Nouvel An
+  const timeUntilNewYear = nextNewYear.getTime() - now.getTime();
+  
+  console.log(`⏰ Prochain Nouvel An prévu dans ${Math.floor(timeUntilNewYear / 1000)} secondes`);
+  
+  // Programmer l'envoi du message
+  setTimeout(() => {
+    sendNewYearMessageToAll();
+    // Reprogrammer pour chaque année
+    checkAndScheduleNewYearMessage();
+  }, timeUntilNewYear);
+}
 
+function sendNewYearMessageToAll() {
+  bot.guilds.cache.forEach(guild => {
+    // Cherche un canal général pour envoyer le message
+    const channel = guild.channels.cache.find(ch => 
+      ch.name === 'général' || 
+      ch.name === 'general' || 
+      ch.name === 'announcements' || 
+      ch.name === 'annonces'
+    );
+    
+    if (channel && channel.isTextBased()) {
+      guild.members.fetch().then(members => {
+        const memberList = members
+          .filter(m => !m.user.bot)
+          .map(m => m.toString())
+          .join(', ');
+        
+        channel.send({  
+          content: `🎆 **BONNE ANNÉE À TOUS !** 🎆\n\n${memberList}\n\nQue cette nouvelle année vous apporte bonheur, santé et succès! 🎉🥳`,
+          allowedMentions: { parse: [] }
+        });
+
+      }).catch(err => console.log("Erreur lors de la récupération des membres:", err));
+    }
+  });
+}
