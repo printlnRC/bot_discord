@@ -1,5 +1,6 @@
 
 const { Client, GatewayIntentBits } = require("discord.js");
+const { channel } = require("node:diagnostics_channel");
 const fs = require('node:fs');
 
 const bot = new Client({
@@ -33,6 +34,10 @@ bot.on("ready", async () => {
         {
             name: "salut",
             description: "Renvoie Bonjour à toi + nom du joueur!"
+        },
+        {
+            name: "nouvelan",
+            description: "dans combien de temps le nouvel an?"
         }
     ]);
     console.log("Le bot est prêt !");
@@ -60,6 +65,10 @@ bot.on("interactionCreate", (interaction) => {
 
     if (interaction.commandName === "salut") {
         interaction.reply(`Bonjour à toi, ${interaction.user.username}!`);
+    }
+
+    if (interaction.commandName === "nouvelan") {
+      timeUntilNewYear(interaction);
     }
 });
 
@@ -112,6 +121,18 @@ function checkUser(userId, count) {
       channel.send(`🚨 <@${userId}> a utilisé des mots interdits **${count} fois** !`);
     }
   }
+}
+
+function timeUntilNewYear(interaction) {
+  const now = new Date();
+  const currentYear = now.getFullYear();
+  
+  // Créer la date du 1er janvier de l'année suivante
+  const nextNewYear = new Date(currentYear + 1, 0, 1, 0, 0, 0, 0);
+  
+  // Calculer le temps en millisecondes jusqu'au Nouvel An
+  const timeUntilNewYearMs = nextNewYear.getTime() - now.getTime();
+  interaction.reply(`⏰ Prochain Nouvel An prévu dans ${Math.floor(timeUntilNewYearMs / 1000)} secondes`);
 }
 
 function checkAndScheduleNewYearMessage() {
