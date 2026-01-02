@@ -117,10 +117,40 @@ function checkUser(userId, count) {
   const CHANNEL_ID = process.env.CHANNEL_ID;
   if (count >= 3) {
     const channel = bot.channels.cache.get(CHANNEL_ID);
+    MuteUser(userId);
     if (channel) {
       channel.send(`🚨 <@${userId}> a utilisé des mots interdits **${count} fois** !`);
     }
   }
+}
+
+function MuteUser(userId) {
+  const guilds = bot.guilds.cache;
+  guilds.forEach(guild => {
+    const member = guild.members.cache.get(userId);
+    if (member) {
+      let muteRole = guild.roles.cache.find(role => role.name === "Muted");
+      if (!muteRole) {
+        guild.roles.create({
+          name: "Muted",
+          permissions: []
+        }).then(role => {
+          guild.channels.cache.forEach(channel => {
+            channel.permissionOverwrites.edit(role, {
+              SendMessages: false,
+              Speak: false,
+              AddReactions: false
+            });
+          });
+          member.roles.add(role);
+          channel.send(`🔇 <@${userId}> a été muté pour utilisation excessive de mots interdits.`);
+        });
+      } else {
+        member.roles.add(muteRole);
+        channel.send(`🔇 <@${userId}> a été muté pour utilisation excessive de mots interdits.`);
+      }
+    }
+  });
 }
 
 function timeUntilNewYear(interaction) {
