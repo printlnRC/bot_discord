@@ -173,7 +173,7 @@ function sendNewYearMessageToAll() {
           .join(', ');
         
         channel.send({  
-          content: `🎆 **BONNE ANNÉE À TOUS !** 🎆\n\n${memberList}\n\nQue cette nouvelle année vous apporte bonheur, santé et succès! 🎉🥳`,
+          content: `🎆 **BONNE ANNÉE À TOUS !** 🎆 @everyone Que cette nouvelle année vous apporte bonheur, santé et succès! 🎉🥳`,
           allowedMentions: { parse: [] }
         });
 
