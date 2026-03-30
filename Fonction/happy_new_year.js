@@ -1,6 +1,3 @@
-const { Client, GatewayIntentBits } = require("discord.js");
-const { channel } = require("node:diagnostics_channel");
-const fs = require('node:fs');
 const { bot } = require("./login"); // On importe le bot depuis l'autre fichier
 
 function timeUntilNewYear(interaction) {
@@ -27,12 +24,28 @@ function checkAndScheduleNewYearMessage() {
   
   console.log(`⏰ Prochain Nouvel An prévu dans ${Math.floor(timeUntilNewYear / 1000)} secondes`);
   
-  // Programmer l'envoi du message
-  setTimeout(() => {
-    sendNewYearMessageToAll();
-    // Reprogrammer pour chaque année
-    checkAndScheduleNewYearMessage();
-  }, timeUntilNewYear);
+  // Node.js setTimeout accepte max ~2^31-1 ms (~24.8 jours)
+  const MAX_TIMEOUT = 2147483647;
+
+  const scheduleNext = (delay) => {
+    setTimeout(() => {
+      if (delay >= MAX_TIMEOUT) {
+        // si c'est encore trop loin, on re-planifie en fragment
+        checkAndScheduleNewYearMessage();
+        return;
+      }
+
+      sendNewYearMessageToAll();
+      // Reprogrammer pour l’année suivante
+      checkAndScheduleNewYearMessage();
+    }, delay);
+  };
+
+  if (timeUntilNewYear > MAX_TIMEOUT) {
+    scheduleNext(MAX_TIMEOUT);
+  } else {
+    scheduleNext(timeUntilNewYear);
+  }
 }
 
 function sendNewYearMessageToAll() {
