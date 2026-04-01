@@ -1,6 +1,7 @@
 const { bot } = require("./login");
 const { timeUntilNewYear, checkAndScheduleNewYearMessage } = require("./happy_new_year");
 const { dockerPs } = require("./Docker_manip/docker_ps");
+const { docker_compose_up } = require("./Docker_manip/docker_compose_up");
 
 
 // Un seul événement "ready"
@@ -24,6 +25,10 @@ bot.on("ready", async () => {
         {
             name: "docker_ps",
             description: "Affiche les conteneurs Docker en cours d'exécution"
+        },
+        {
+            name: "docker_compose_up",
+            description: "Démarre les services définis dans le fichier docker-compose.yml"
         }
     ]);
     console.log("Le bot est prêt !");
@@ -59,6 +64,10 @@ bot.on("interactionCreate", (interaction) => {
 
     if (interaction.commandName === "docker_ps") {
         dockerPs(interaction);
+    }
+    if (interaction.commandName === "docker_compose_up") {
+        docker_compose_up();
+        interaction.reply("Les services Docker sont en cours de démarrage...");
     }
 });
 
