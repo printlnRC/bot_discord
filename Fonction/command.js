@@ -1,5 +1,6 @@
 const { bot } = require("./login");
 const { timeUntilNewYear, checkAndScheduleNewYearMessage } = require("./happy_new_year");
+const { dockerPs } = require("./Docker_manip/docker_ps");
 
 
 // Un seul événement "ready"
@@ -19,10 +20,14 @@ bot.on("ready", async () => {
         {
             name: "nouvelan",
             description: "dans combien de temps le nouvel an?"
+        },
+        {
+            name: "docker_ps",
+            description: "Affiche les conteneurs Docker en cours d'exécution"
         }
     ]);
     console.log("Le bot est prêt !");
-    
+
     // Vérification et programmation du message de Nouvel An automatique
     checkAndScheduleNewYearMessage();
 });
@@ -49,7 +54,11 @@ bot.on("interactionCreate", (interaction) => {
     }
 
     if (interaction.commandName === "nouvelan") {
-      timeUntilNewYear(interaction);
+        timeUntilNewYear(interaction);
+    }
+
+    if (interaction.commandName === "docker_ps") {
+        dockerPs(interaction);
     }
 });
 
